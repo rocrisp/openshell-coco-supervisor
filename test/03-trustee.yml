@@ -1,0 +1,23 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: trustee
+spec:
+  description: Validate Red Hat build of Trustee and its custom resources.
+  steps:
+    - name: Check Trustee CSV
+      command: oc get csv -n trustee-operator-system
+      expect:
+        exitCode: 0
+    - name: Check Trustee pods
+      command: oc get pods -n trustee-operator-system
+      expect:
+        exitCode: 0
+    - name: Check TrusteeConfig
+      command: oc get trusteeconfig openshell-trustee -n trustee-operator-system
+      expect:
+        exitCode: 0
+    - name: Check KbsConfig
+      command: oc get kbsconfig openshell-kbs -n trustee-operator-system
+      expect:
+        exitCode: 0

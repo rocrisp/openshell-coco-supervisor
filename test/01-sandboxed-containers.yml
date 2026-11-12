@@ -1,0 +1,16 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: openshift-sandboxed-containers
+spec:
+  description: Validate the OpenShift sandboxed containers Operator and Kata runtime.
+  steps:
+    - name: Check OpenShift sandboxed containers CSV
+      command: oc get csv -n openshift-sandboxed-containers-operator
+      expect:
+        exitCode: 0
+    - name: Check kata-remote RuntimeClass
+      command: oc get runtimeclass kata-remote
+      expect:
+        exitCode: 0
+        outputContains: kata-remote

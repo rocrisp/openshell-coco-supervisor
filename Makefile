@@ -27,13 +27,8 @@ deploy: ## Deploy all components in order
 	  --type merge \
 	  --patch-file deploy/05-supervisor-runtimeclass-patch.yaml
 
-test: ## Run all test gates
-	bash tests/01-cluster.sh
-	bash tests/02-runtimeclass.sh
-	bash tests/03-agent-sandbox.sh
-	bash tests/04-trustee.sh
-	bash tests/05-openshell.sh
-	bash tests/06-end-to-end.sh
+test: ## Run all YAML test suites
+	python3 scripts/run_tests.py 'test/*.yml'
 
 clean: ## Remove OpenShell release only; operators remain
 	helm uninstall openshell --namespace $(NAMESPACE)

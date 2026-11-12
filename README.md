@@ -54,13 +54,18 @@ openshell-coco-stack/
 │   ├── openshell-values.yaml
 │   ├── trustee-config.yaml
 │   └── kbs-config.yaml
-├── tests/
-│   ├── 01-cluster.sh
-│   ├── 02-runtimeclass.sh
-│   ├── 03-agent-sandbox.sh
-│   ├── 04-trustee.sh
-│   ├── 05-openshell.sh
-│   └── 06-end-to-end.sh
+├── scripts/
+│   └── run_tests.py
+├── test/
+│   ├── README.md
+│   ├── 00-cluster-readiness.yml
+│   ├── 01-sandboxed-containers.yml
+│   ├── 02-agent-sandbox.yml
+│   ├── 03-trustee.yml
+│   ├── 04-openshell.yml
+│   ├── 05-supervisor-confidential.yml
+│   └── 06-end-to-end.yml
+├── requirements.txt
 └── docs/
     ├── deployment-sequence.md
     └── deployment-sequence.png
@@ -73,7 +78,7 @@ make deploy
 make test
 ```
 
-The Makefile runs each phase in order and stops on the first failure.
+The Makefile runs each phase in order and stops on the first failure. Tests are declarative YAML files under `test/` and are executed by `scripts/run_tests.py`.
 
 ## Security claim
 

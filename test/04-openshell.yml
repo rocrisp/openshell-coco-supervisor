@@ -1,0 +1,19 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: openshell
+spec:
+  description: Validate the baseline OpenShell deployment.
+  steps:
+    - name: Check OpenShell pods
+      command: oc get pods -n openshell
+      expect:
+        exitCode: 0
+    - name: Check OpenShell gateway service
+      command: oc get service openshell -n openshell
+      expect:
+        exitCode: 0
+    - name: Check OpenShell supervisor deployment
+      command: oc get deployment openshell-supervisor -n openshell
+      expect:
+        exitCode: 0

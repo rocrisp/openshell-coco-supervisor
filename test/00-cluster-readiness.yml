@@ -1,0 +1,23 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: cluster-readiness
+spec:
+  description: Validate that the OpenShift cluster is ready for the CoCo stack.
+  steps:
+    - name: Authenticate to OpenShift
+      command: oc whoami
+      expect:
+        exitCode: 0
+    - name: Check OpenShift cluster version
+      command: oc get clusterversion
+      expect:
+        exitCode: 0
+    - name: Check worker nodes
+      command: oc get nodes
+      expect:
+        exitCode: 0
+    - name: Check storage classes
+      command: oc get storageclass
+      expect:
+        exitCode: 0

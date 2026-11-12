@@ -1,0 +1,15 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: agent-sandbox
+spec:
+  description: Validate the Agent Sandbox controller and CRDs.
+  steps:
+    - name: Check Agent Sandbox CRD
+      command: oc get crd sandboxes.agents.x-k8s.io
+      expect:
+        exitCode: 0
+    - name: Check Agent Sandbox controller pods
+      command: oc get pods -n agent-sandbox-system
+      expect:
+        exitCode: 0

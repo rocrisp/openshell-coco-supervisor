@@ -1,0 +1,16 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: supervisor-confidential
+spec:
+  description: Validate that the OpenShell supervisor uses the confidential Kata runtime.
+  steps:
+    - name: Check supervisor runtime class
+      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.spec.runtimeClassName}'
+      expect:
+        exitCode: 0
+        outputContains: kata-remote
+    - name: Check supervisor pod status
+      command: oc get pods -n openshell -l app.kubernetes.io/component=supervisor
+      expect:
+        exitCode: 0

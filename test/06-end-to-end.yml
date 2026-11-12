@@ -1,0 +1,15 @@
+apiVersion: openshell.coco/v1alpha1
+kind: TestSuite
+metadata:
+  name: end-to-end
+spec:
+  description: Run the OpenShell end-to-end smoke test.
+  steps:
+    - name: Check OpenShell CLI status
+      command: openshell status
+      expect:
+        exitCode: 0
+    - name: List OpenShell sandboxes
+      command: openshell sandbox list
+      expect:
+        exitCode: 0
