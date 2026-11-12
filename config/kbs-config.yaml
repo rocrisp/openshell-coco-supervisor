@@ -1,0 +1,13 @@
+apiVersion: confidentialcontainers.org/v1alpha1
+kind: KbsConfig
+metadata:
+  name: openshell-kbs
+  namespace: trustee-operator-system
+  labels:
+    app.kubernetes.io/part-of: trustee-operator
+    app.kubernetes.io/managed-by: openshell-coco-stack
+spec:
+  kbsConfigMapName: kbs-config
+  kbsAuthSecretName: kbs-auth-public-key
+  kbsDeploymentType: AllInOneDeployment
+  kbsAttestationPolicyConfigMapName: attestation-policy

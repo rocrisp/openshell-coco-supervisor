@@ -1,0 +1,30 @@
+# OpenShell 0.1.8 values for a shared supervisor that can be patched into a
+# confidential RuntimeClass without modifying the OpenShell chart.
+
+gatewayConfig:
+  openshell.drivers.kubernetes:
+    supervisor_topology: gateway
+
+supervisor:
+  replicas: 1
+  recoveryTimeoutSeconds: 60
+  podSecurityContext:
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+
+server:
+  # Default RuntimeClass for sandbox Pods. Use kata-cc on bare metal or
+  # kata-remote for Azure/ARO peer pods.
+  defaultRuntimeClassName: kata-remote
+  sandboxNamespace: openshell
+
+podSecurityContext: null
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: null
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
