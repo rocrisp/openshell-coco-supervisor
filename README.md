@@ -16,7 +16,7 @@ This repository is a PoC deployment and test harness. It is intentionally small 
 
 ## Deployment order
 
-![Deployment sequence](docs/deployment-sequence.png)
+![Deployment sequence](doc/deployment-sequence.png)
 
 ```mermaid
 flowchart TD
@@ -61,6 +61,8 @@ openshell-coco-stack/
 │   ├── 04-trustee.sh
 │   ├── 05-openshell.sh
 │   └── 06-end-to-end.sh
+├── doc/
+│   └── deployment-sequence.png
 └── docs/
     └── deployment-sequence.md
 ```
