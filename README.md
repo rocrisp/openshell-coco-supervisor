@@ -49,6 +49,7 @@ See [docs/deployment-sequence.md](docs/deployment-sequence.md) for the ordered d
 └── docs/
     ├── deployment-sequence.md
     ├── deployment-sequence.png
+    ├── architecting-the-zero-trust-ai-sandbox.mp4
     ├── kata-containers.md
     └── security-model.md
 ```
@@ -61,6 +62,10 @@ make test
 ```
 
 The Makefile runs each phase in order and stops on the first failure. Tests are declarative YAML files under `test/` and are executed by `scripts/run_tests.py`.
+
+## Reference video
+
+Watch [Architecting the Zero-Trust AI Sandbox](docs/architecting-the-zero-trust-ai-sandbox.mp4) for the broader product and security context.
 
 ## Kata Containers and confidential containers
 
