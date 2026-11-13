@@ -14,29 +14,9 @@ This repository is a PoC deployment and test harness. It is intentionally small 
 | Red Hat build of Trustee | **1.2.1** |
 | OpenShell | **0.1.8** |
 
-## Deployment order
+## Deployment sequence
 
-![Deployment sequence](docs/deployment-sequence.png)
-
-```mermaid
-flowchart TD
-    A["0. Validate OpenShift cluster<br/>4.19+, admin, NetworkPolicy, storage"] --> B["1. Install OpenShift sandboxed containers Operator 1.13.1"]
-    B --> K["1a. Enable confidential feature gate and create KataConfig"]
-    K --> B1["Test: RuntimeClass kata-remote or kata-cc exists"]
-    B1 --> C["2. Install Red Hat build of Agent Sandbox Operator"]
-    C --> C1["Test: Agent Sandbox CRDs and controller are ready"]
-    C1 --> D["3. Install Red Hat build of Trustee 1.2.1"]
-    D --> D1["Test: TrusteeConfig and KbsConfig reconcile"]
-    D1 --> E["4. Install OpenShell 0.1.8"]
-    E --> E1["Test: gateway, supervisor, and sandbox are healthy"]
-    E1 --> F["5. Patch supervisor Deployment to use kata-remote or kata-cc"]
-    F --> F1["Test: supervisor still starts and connects"]
-    F1 --> G["6. Configure Trustee to release secrets only after attestation"]
-    G --> G1["Test: attested workload gets secret; unattested does not"]
-    G1 --> H["7. Run end-to-end OpenShell agent test"]
-```
-
-**Order matters for the first deployment.** After the baseline works, Trustee, Agent Sandbox, and OpenShell chart preparation can be done in parallel.
+See [docs/deployment-sequence.md](docs/deployment-sequence.md) for the ordered deployment and test gates.
 
 ## Repository layout
 

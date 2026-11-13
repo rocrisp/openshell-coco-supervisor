@@ -1,5 +1,7 @@
 # Deployment sequence
 
+![Deployment sequence](deployment-sequence.png)
+
 ## Phase 0 — Cluster readiness
 
 Deploy nothing yet.
