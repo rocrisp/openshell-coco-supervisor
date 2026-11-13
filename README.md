@@ -68,7 +68,8 @@ openshell-coco-stack/
 ├── requirements.txt
 └── docs/
     ├── deployment-sequence.md
-    └── deployment-sequence.png
+    ├── deployment-sequence.png
+    └── kata-containers.md
 ```
 
 ## Quick start
@@ -79,6 +80,13 @@ make test
 ```
 
 The Makefile runs each phase in order and stops on the first failure. Tests are declarative YAML files under `test/` and are executed by `scripts/run_tests.py`.
+
+## Kata Containers and confidential containers
+
+- **Kata** = VM-isolated container runtime
+- **Confidential containers** = Kata VM + TEE hardware + attestation + Trustee secret release
+
+See [docs/kata-containers.md](docs/kata-containers.md) for the full explanation.
 
 ## Security claim
 
