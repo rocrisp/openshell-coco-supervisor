@@ -1,6 +1,6 @@
 # OpenShell Confidential Container Stack
 
-Deploy the **OpenShell supervisor inside a confidential container** on OpenShift, with attestation-gated secret release through **Red Hat build of Trustee**.
+Deploy the **OpenShell supervisor inside a confidential container** on OpenShift, and deploy **Red Hat build of Trustee** for the intended attestation-gated secret-release path.
 
 This repository is a PoC deployment and test harness. It is intentionally small and sequential: each phase has a deploy step and a test gate.
 
@@ -49,7 +49,8 @@ See [docs/deployment-sequence.md](docs/deployment-sequence.md) for the ordered d
 └── docs/
     ├── deployment-sequence.md
     ├── deployment-sequence.png
-    └── kata-containers.md
+    ├── kata-containers.md
+    └── security-model.md
 ```
 
 ## Quick start
@@ -70,9 +71,11 @@ See [docs/kata-containers.md](docs/kata-containers.md) for the full explanation.
 
 ## Security claim
 
-This stack protects the **OpenShell supervisor’s in-use state and credentials** by running it inside a confidential VM and releasing secrets only after successful attestation.
+This PoC protects the **OpenShell supervisor’s in-use memory and runtime state** by running it inside a confidential Kata VM.
 
-It does **not** by itself protect secrets that remain outside the confidential VM, such as secrets stored in the gateway, Kubernetes, or Vault.
+It does **not** automatically make the entire system confidential. If a credential is stored in an unencrypted Kubernetes Secret or passes through a non-confidential gateway, an attacker can steal it upstream without compromising the supervisor’s protected memory.
+
+For end-to-end security, credentials must be stored in Trustee and released directly to the attested confidential supervisor. See [docs/security-model.md](docs/security-model.md) for the full secret-path model and current implementation gap.
 
 ## Important implementation note
 

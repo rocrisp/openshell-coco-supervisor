@@ -111,7 +111,15 @@ Test:
 - supervisor still starts
 - gateway can reach it
 - sandbox can reach it
-- Trustee releases credentials only after attestation
+- supervisor Pod uses the confidential runtime class
+
+Secret-path requirement:
+
+- credentials should be stored in Trustee,
+- released only to the attested confidential supervisor,
+- and not delivered in plaintext through the gateway or an unencrypted Kubernetes Secret.
+
+The current PoC does not yet complete the direct Trustee-to-supervisor credential integration. See [security-model.md](security-model.md).
 
 ## Phase 6 — End-to-end
 
