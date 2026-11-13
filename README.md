@@ -21,7 +21,8 @@ This repository is a PoC deployment and test harness. It is intentionally small 
 ```mermaid
 flowchart TD
     A["0. Validate OpenShift cluster<br/>4.19+, admin, NetworkPolicy, storage"] --> B["1. Install OpenShift sandboxed containers Operator 1.13.1"]
-    B --> B1["Test: RuntimeClass kata-remote or kata-cc exists"]
+    B --> K["1a. Enable confidential feature gate and create KataConfig"]
+    K --> B1["Test: RuntimeClass kata-remote or kata-cc exists"]
     B1 --> C["2. Install Red Hat build of Agent Sandbox Operator"]
     C --> C1["Test: Agent Sandbox CRDs and controller are ready"]
     C1 --> D["3. Install Red Hat build of Trustee 1.2.1"]
@@ -40,7 +41,6 @@ flowchart TD
 ## Repository layout
 
 ```text
-openshell-coco-stack/
 ├── README.md
 ├── Makefile
 ├── deploy/
@@ -48,8 +48,8 @@ openshell-coco-stack/
 │   ├── 01-openshift-sandboxed-containers-operator.yaml
 │   ├── 02-agent-sandbox-operator.yaml
 │   ├── 03-trustee-operator.yaml
-│   ├── 04-openshell-values.yaml
-│   └── 05-supervisor-runtimeclass-patch.yaml
+│   ├── 04-kataconfig.yaml
+│   └── 05-openshell-supervisor-confidential.yaml
 ├── config/
 │   ├── openshell-values.yaml
 │   ├── trustee-config.yaml

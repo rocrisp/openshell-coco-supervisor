@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: osc-feature-gates
+  namespace: openshift-sandboxed-containers-operator
+data:
+  confidential: "true"
+---
+apiVersion: kataconfiguration.openshift.io/v1
+kind: KataConfig
+metadata:
+  name: openshell-coco
+spec:
+  enablePeerPods: true
+  logLevel: info

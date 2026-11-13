@@ -9,6 +9,31 @@ spec:
       command: oc get csv -n openshift-sandboxed-containers-operator
       expect:
         exitCode: 0
+    - name: Check KataConfig
+      command: oc get kataconfig openshell-coco
+      expect:
+        exitCode: 0
+        outputContains: openshell-coco
+    - name: Check confidential feature gate
+      command: oc get configmap osc-feature-gates -n openshift-sandboxed-containers-operator -o jsonpath='{.data.confidential}'
+      expect:
+        exitCode: 0
+        outputContains: "true"
+    - name: Check KataConfig completion
+      command: oc get kataconfig openshell-coco -o jsonpath='{.status.conditions[?(@.type=="InProgress")].status}'
+      expect:
+        exitCode: 0
+        outputContains: "False"
+    - name: Check confidential VM is enabled
+      command: oc get configmap peer-pods-cm -n openshift-sandboxed-containers-operator -o jsonpath='{.data.DISABLECVM}'
+      expect:
+        exitCode: 0
+        outputContains: "false"
+    - name: Check confidential pod VM image setting
+      command: oc get configmap azure-podvm-image-cm -n openshift-sandboxed-containers-operator -o jsonpath='{.data.CONFIDENTIAL_COMPUTE_ENABLED}'
+      expect:
+        exitCode: 0
+        outputContains: "yes"
     - name: Check kata-remote RuntimeClass
       command: oc get runtimeclass kata-remote
       expect:

@@ -15,6 +15,9 @@ deploy: ## Deploy all components in order
 	oc apply -f deploy/03-trustee-operator.yaml
 	@echo "Waiting for operators to settle..."
 	sleep 60
+	oc apply -f deploy/04-kataconfig.yaml
+	@echo "Waiting for confidential Kata runtime..."
+	oc wait --for=condition=InProgress=False kataconfig/openshell-coco --timeout=600s
 	oc apply -f config/trustee-config.yaml
 	oc apply -f config/kbs-config.yaml
 	helm upgrade --install openshell oci://ghcr.io/nvidia/openshell/helm-chart \
@@ -25,7 +28,7 @@ deploy: ## Deploy all components in order
 	oc patch deployment openshell-supervisor \
 	  --namespace $(NAMESPACE) \
 	  --type merge \
-	  --patch-file deploy/05-supervisor-runtimeclass-patch.yaml
+	  --patch-file deploy/05-openshell-supervisor-confidential.yaml
 
 test: ## Run all YAML test suites
 	python3 scripts/run_tests.py 'test/*.yml'

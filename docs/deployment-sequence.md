@@ -32,6 +32,24 @@ Test:
 - a RuntimeClass such as `kata-remote` or `kata-cc` exists
 - a simple Pod starts under that RuntimeClass
 
+## Phase 1a — KataConfig
+
+Create:
+
+- `osc-feature-gates` ConfigMap with `confidential: "true"`
+- `KataConfig` named `openshell-coco`
+- `enablePeerPods: true`
+
+This asks the OpenShift sandboxed containers Operator to enable confidential peer pods and create the `kata-remote` RuntimeClass.
+
+Test:
+
+```bash
+oc apply -f deploy/04-kataconfig.yaml
+oc wait --for=condition=InProgress=False kataconfig/openshell-coco --timeout=600s
+oc get runtimeclass kata-remote
+```
+
 ## Phase 2 — Agent Sandbox
 
 Install:
