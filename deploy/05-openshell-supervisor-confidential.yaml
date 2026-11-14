@@ -5,5 +5,18 @@ metadata:
   namespace: openshell
 spec:
   template:
+    metadata:
+      annotations:
+        # Kata guest VM RAM, in MiB.
+        io.katacontainers.config.hypervisor.default_memory: "2048"
     spec:
       runtimeClassName: kata-remote
+      containers:
+        - name: supervisor
+          resources:
+            # Host cgroup size for the pinned TEE VM plus Kata/QEMU overhead.
+            # Formula: default_memory (2048 MiB) + 512 MiB host overhead.
+            requests:
+              memory: "2560Mi"
+            limits:
+              memory: "2560Mi"

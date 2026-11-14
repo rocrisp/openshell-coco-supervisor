@@ -15,6 +15,21 @@ spec:
       expect:
         exitCode: 0
         outputContains: kata-remote
+    - name: Check Kata guest memory
+      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.metadata.annotations}'
+      expect:
+        exitCode: 0
+        outputContains: "2048"
+    - name: Check supervisor memory request
+      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.spec.containers[?(@.name=="supervisor")].resources.requests.memory}'
+      expect:
+        exitCode: 0
+        outputContains: "2560Mi"
+    - name: Check supervisor memory limit
+      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.spec.containers[?(@.name=="supervisor")].resources.limits.memory}'
+      expect:
+        exitCode: 0
+        outputContains: "2560Mi"
     - name: Check supervisor pod status
       command: oc get pods -n openshell -l app.kubernetes.io/component=supervisor
       expect:

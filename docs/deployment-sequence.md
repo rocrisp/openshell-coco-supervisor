@@ -105,6 +105,20 @@ Patch:
 
 - `openshell-supervisor` Deployment
 - `spec.template.spec.runtimeClassName: kata-remote` or `kata-cc`
+- `io.katacontainers.config.hypervisor.default_memory: "2048"`
+- `resources.requests.memory` and `resources.limits.memory` set to `2560Mi`
+
+Memory sizing:
+
+- `default_memory` is the Kata guest VM RAM.
+- `resources.requests.memory` and `resources.limits.memory` are enforced by the host cgroup around the Kata/QEMU process.
+- For confidential containers, VM memory is pinned at boot and requires host-side headroom.
+- Use the Red Hat formula:
+
+```text
+default_memory + 512 MiB host overhead
+2048 MiB + 512 MiB = 2560 MiB
+```
 
 Test:
 

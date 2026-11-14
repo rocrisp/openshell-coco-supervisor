@@ -87,6 +87,6 @@ For end-to-end security, credentials must be stored in Trustee and released dire
 The OpenShell Helm chart does not expose a `runtimeClassName` field for the shared supervisor Deployment. To avoid modifying OpenShell, this repo:
 
 1. sets `gatewayConfig.openshell.drivers.kubernetes.supervisor_topology: gateway`, which makes the supervisor a chart-managed Deployment;
-2. patches that Deployment with `runtimeClassName: kata-remote` or `kata-cc`.
+2. patches that Deployment with `runtimeClassName: kata-remote` or `kata-cc`, a 2048 MiB Kata guest VM, and a 2560 MiB host cgroup limit.
 
 That is a configuration-only path and requires no OpenShell code changes.
