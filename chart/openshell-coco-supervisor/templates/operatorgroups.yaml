@@ -1,0 +1,15 @@
+{{- range $component := list "openshift-sandboxed-containers-operator" "agent-sandbox-system" "trustee-operator-system" }}
+{{- $existing := lookup "operators.coreos.com/v1" "OperatorGroup" $component $component }}
+{{- $render := include "openshell-coco.shouldRenderNamed" (dict "object" $existing "release" $.Release.Name) }}
+{{- if eq $render "true" }}
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ $component }}
+  namespace: {{ $component }}
+  labels:
+    {{- include "openshell-coco.labels" $ | nindent 4 }}
+spec: {}
+{{- end }}
+{{- end }}

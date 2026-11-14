@@ -1,0 +1,90 @@
+# OpenShell subchart values.
+openshell:
+  enabled: true
+
+  gatewayConfig:
+    openshell.drivers.kubernetes:
+      supervisor_topology: gateway
+
+  supervisor:
+    replicas: 1
+    recoveryTimeoutSeconds: 60
+    podSecurityContext:
+      runAsUser: null
+      runAsGroup: null
+      fsGroup: null
+
+    runtimeClassName: kata-remote
+    guestMemoryMiB: 2048
+    initdataConfigMap: openshell-supervisor-initdata
+    resources:
+      requests:
+        memory: 2560Mi
+      limits:
+        memory: 2560Mi
+
+  server:
+    defaultRuntimeClassName: kata-remote
+    sandboxNamespace: openshell
+
+  podSecurityContext: null
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: null
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+# Operator and runtime settings.
+operators:
+  openshiftSandboxedContainers:
+    enabled: true
+    namespace: openshift-sandboxed-containers-operator
+    subscriptionName: openshift-sandboxed-containers-operator
+    channel: stable-1.13
+    startingCSV: openshift-sandboxed-containers-operator.v1.13.1
+
+  agentSandbox:
+    enabled: true
+    namespace: agent-sandbox-system
+    subscriptionName: agent-sandbox-operator
+    channel: tech-preview
+    startingCSV: agent-sandbox-operator.v0.9.0
+
+  trustee:
+    enabled: true
+    namespace: trustee-operator-system
+    subscriptionName: trustee-operator
+    channel: stable-1.2
+    startingCSV: trustee-operator.v1.2.1
+
+kata:
+  enabled: true
+  name: openshell-coco
+  enablePeerPods: true
+  logLevel: info
+  featureGateConfigMap: osc-feature-gates
+  confidential: true
+
+trustee:
+  kbsConfigName: openshell-kbs
+  trusteeConfigName: openshell-trustee
+  profileType: Restricted
+  kbsServiceType: ClusterIP
+  kbsConfigMapName: kbs-config
+  kbsAuthSecretName: kbs-auth-public-key
+  kbsDeploymentType: AllInOneDeployment
+  kbsAttestationPolicyConfigMapName: attestation-policy
+  tlsSecretName: trustee-token-cert
+
+initdata:
+  enabled: true
+  configMapName: openshell-supervisor-initdata
+  trusteeNamespace: trustee-operator-system
+  trusteeSecretName: kbs-https-certificate
+  trusteeURL: https://kbs-service.trustee-operator-system.svc.cluster.local:8080
+  targetNamespace: openshell
+  hookImage: registry.redhat.io/openshift4/ose-cli:latest
+  serviceAccountName: openshell-initdata

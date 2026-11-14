@@ -11,8 +11,20 @@ make test
 Run a single suite:
 
 ```bash
-python3 scripts/run_tests.py test/01-sandboxed-containers.yml
+.venv/bin/python scripts/run_tests.py test/01-sandboxed-containers.yml
 ```
+
+The `make test` target creates a local `.venv` and installs `PyYAML` automatically.
+
+## Cluster-agnostic checks
+
+The suites use:
+
+- label selectors,
+- resource-type discovery,
+- generic `oc get` commands.
+
+They do not depend on a specific cluster name, KataConfig name, TrusteeConfig name, KbsConfig name, or OpenShell release name.
 
 ## Schema
 

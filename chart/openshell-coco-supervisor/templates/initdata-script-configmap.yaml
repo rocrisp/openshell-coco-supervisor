@@ -1,0 +1,17 @@
+{{- if .Values.initdata.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-initdata-script
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+    app.kubernetes.io/component: initdata-script
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:
+  create-supervisor-initdata.sh: |-
+{{ .Files.Get "files/create-supervisor-initdata.sh" | indent 4 }}
+{{- end }}

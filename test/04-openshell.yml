@@ -9,11 +9,19 @@ spec:
       command: oc get pods -n openshell
       expect:
         exitCode: 0
+        outputContains: Running
+    - name: Check OpenShell gateway workload
+      command: oc get statefulset -n openshell -l app.kubernetes.io/name=openshell
+      expect:
+        exitCode: 0
+        outputContains: openshell
+    - name: Check OpenShell supervisor workload
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor
+      expect:
+        exitCode: 0
+        outputContains: supervisor
     - name: Check OpenShell gateway service
-      command: oc get service openshell -n openshell
+      command: oc get service -n openshell -l app.kubernetes.io/name=openshell
       expect:
         exitCode: 0
-    - name: Check OpenShell supervisor deployment
-      command: oc get deployment openshell-supervisor -n openshell
-      expect:
-        exitCode: 0
+        outputContains: openshell

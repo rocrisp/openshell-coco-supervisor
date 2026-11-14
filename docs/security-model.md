@@ -47,7 +47,7 @@ The important property is that the secret must not pass through an untrusted or 
 
 ## Current PoC limitation
 
-The current repository deploys:
+The current repository deploys a Helm umbrella chart containing:
 
 - the OpenShift sandboxed containers Operator,
 - the confidential Kata runtime,

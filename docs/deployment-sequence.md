@@ -4,9 +4,7 @@
 
 ## Phase 0 — Cluster readiness
 
-Deploy nothing yet.
-
-Verify:
+Before installing the chart, verify:
 
 - OpenShift 4.19 or later
 - cluster-admin or equivalent RBAC
@@ -15,160 +13,120 @@ Verify:
 - confidential VM SKU or peer-pod support
 - Azure quota, region, and identity configuration if using ARO
 
-Test:
-
 ```bash
 oc get clusterversion
 oc get nodes
 oc get storageclass
 ```
 
-## Phase 1 — OpenShift sandboxed containers 1.13.1
+## Phase 1 — Render and install the Helm chart
 
-Install:
-
-- **OpenShift sandboxed containers Operator 1.13.1**
-
-Test:
-
-- a RuntimeClass such as `kata-remote` or `kata-cc` exists
-- a simple Pod starts under that RuntimeClass
-
-## Phase 1a — KataConfig
-
-Create:
-
-- `osc-feature-gates` ConfigMap with `confidential: "true"`
-- `KataConfig` named `openshell-coco`
-- `enablePeerPods: true`
-
-This asks the OpenShift sandboxed containers Operator to enable confidential peer pods and create the `kata-remote` RuntimeClass.
-
-Test:
+Install or upgrade the umbrella release:
 
 ```bash
-oc apply -f deploy/04-kataconfig.yaml
-oc wait --for=condition=InProgress=False kataconfig/openshell-coco --timeout=600s
-oc get runtimeclass kata-remote
+helm upgrade --install openshell-coco \
+  chart/openshell-coco-supervisor \
+  --namespace openshell \
+  --create-namespace \
+  --wait
 ```
 
-## Phase 2 — Agent Sandbox
+The chart renders and installs:
 
-Install:
+- OpenShift sandboxed containers Operator
+- Agent Sandbox Operator
+- Red Hat build of Trustee
+- the confidential Kata runtime
+- OpenShell
+- the supervisor initdata hook
+- the confidential supervisor Deployment
 
-- **Red Hat build of Agent Sandbox Operator** (Technology Preview)
+## Phase 2 — Idempotency and skip behavior
 
-Test:
+The umbrella chart uses Helm `lookup` during rendering.
 
-- `Sandbox`, `SandboxTemplate`, `SandboxClaim`, and `SandboxWarmPool` CRDs exist
-- the controller is running in `agent-sandbox-system`
+For each operator, CRD, KataConfig, TrusteeConfig, and KbsConfig:
 
-## Phase 3 — Trustee 1.2.1
+- if the resource is missing, Helm renders it;
+- if the resource already exists and is owned by this release, Helm renders and updates it;
+- if the resource already exists and is owned by another manager, Helm skips it.
 
-Install:
+This prevents duplicate subscriptions and custom resources on clusters where some components are already installed.
 
-- **Red Hat build of Trustee Operator 1.2.1**
+## Phase 3 — Initdata hook
 
-Configure:
+Before the main resources are applied, the chart runs a pre-install and pre-upgrade hook Job.
 
-- `TrusteeConfig`
-- `KbsConfig`
-- TLS and attestation policy
-
-Test:
-
-- Trustee reconciles successfully
-- an attested workload can retrieve a secret
-- an unattested workload cannot
-
-## Phase 4 — OpenShell 0.1.8
-
-Install:
-
-- **OpenShell Helm chart 0.1.8**
-
-Configure:
-
-- `gatewayConfig.openshell.drivers.kubernetes.supervisor_topology: gateway`
-- `server.defaultRuntimeClassName: kata-remote` or `kata-cc`
-- OpenShift SCC-compatible UID/GID values
-
-Test:
-
-- gateway, supervisor, and sandbox Pods are healthy
-- OpenShell CLI can reach the gateway
-- a sandbox can be created
-
-## Phase 5 — Confidential supervisor
-
-Patch:
-
-- `openshell-supervisor` Deployment
-- `spec.template.spec.runtimeClassName: kata-remote` or `kata-cc`
-- `io.katacontainers.config.hypervisor.default_memory: "2048"`
-- `coco.io/initdata-configmap: "openshell-supervisor-initdata"`
-- `resources.requests.memory` and `resources.limits.memory` set to `2560Mi`
-
-Initdata:
-
-- Create `openshell-supervisor-initdata` with:
+On a greenfield cluster where Trustee is not installed yet, disable this hook on the first install with:
 
 ```bash
-./scripts/create-supervisor-initdata.sh
+--set initdata.enabled=false \
+  --set openshell.supervisor.initdataConfigMap=""
 ```
 
-- The script reads the Trustee certificate, builds `initdata.toml`, compresses and base64-encodes it, and stores it in the ConfigMap.
-- Kyverno reads that ConfigMap and injects `io.katacontainers.config.hypervisor.cc_init_data` into the supervisor Pod.
+After Trustee is available, enable it again on the next upgrade.
 
-Memory sizing:
+The hook:
 
-- `default_memory` is the Kata guest VM RAM.
-- `resources.requests.memory` and `resources.limits.memory` are enforced by the host cgroup around the Kata/QEMU process.
-- For confidential containers, VM memory is pinned at boot and requires host-side headroom.
-- Use the Red Hat formula:
+1. reads the Trustee certificate,
+2. builds `initdata.toml`,
+3. compresses and base64-encodes it,
+4. creates the `openshell-supervisor-initdata` ConfigMap.
+
+Kyverno then injects that initdata into the supervisor Pod as:
 
 ```text
-default_memory + 512 MiB host overhead
-2048 MiB + 512 MiB = 2560 MiB
+io.katacontainers.config.hypervisor.cc_init_data
 ```
 
-Test:
+## Phase 4 — Confidential supervisor
 
-- supervisor still starts
-- gateway can reach it
-- sandbox can reach it
-- supervisor Pod uses the confidential runtime class
+The vendored OpenShell subchart renders the shared supervisor Deployment with:
 
-Secret-path requirement:
+```yaml
+runtimeClassName: kata-remote
 
-- credentials should be stored in Trustee,
-- released only to the attested confidential supervisor,
-- and not delivered in plaintext through the gateway or an unencrypted Kubernetes Secret.
+annotations:
+  io.katacontainers.config.hypervisor.default_memory: "2048"
+  coco.io/initdata-configmap: "openshell-supervisor-initdata"
 
-The current PoC does not yet complete the direct Trustee-to-supervisor credential integration. See [security-model.md](security-model.md).
+resources:
+  requests:
+    memory: "2560Mi"
+  limits:
+    memory: "2560Mi"
+```
 
-## Phase 6 — End-to-end
+## Phase 5 — Verify the deployment
 
-Run:
+```bash
+make test
+```
 
-1. create an OpenShell sandbox
-2. run an agent command
-3. request an approved external endpoint
-4. verify policy blocks unauthorized network and filesystem access
-5. verify credentials are not visible to the agent
+The tests validate:
 
-## Parallelism
+- cluster readiness,
+- OpenShift sandboxed containers,
+- Agent Sandbox,
+- Trustee,
+- OpenShell,
+- the confidential supervisor,
+- the end-to-end deployment.
 
-After the baseline works, these can proceed in parallel:
+## Phase 6 — End-to-end workflow
 
-- Trustee setup
-- Agent Sandbox setup
-- OpenShell chart preparation
-- Azure/ARO peer-pod resource preparation
+After the deployment is healthy:
 
-These remain hard dependencies:
+1. create an OpenShell sandbox,
+2. run an agent command,
+3. request an approved external endpoint,
+4. verify policy blocks unauthorized network and filesystem access,
+5. verify credentials are not visible to the agent.
 
-- Kata runtime must exist before confidential workloads
-- Agent Sandbox CRDs must exist before OpenShell
-- OpenShell must work normally before moving the supervisor into CoCo
-- Trustee must be configured before testing attestation-gated secrets
+## Rollback
+
+```bash
+helm uninstall openshell-coco -n openshell
+```
+
+This removes resources owned by the Helm release. Resources skipped because they were already owned by another manager are not removed.

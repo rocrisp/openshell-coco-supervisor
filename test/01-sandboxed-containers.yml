@@ -6,21 +6,22 @@ spec:
   description: Validate the OpenShift sandboxed containers Operator and Kata runtime.
   steps:
     - name: Check OpenShift sandboxed containers CSV
-      command: oc get csv -n openshift-sandboxed-containers-operator
+      command: oc get csv -A
       expect:
         exitCode: 0
+        outputContains: sandboxed-containers-operator
     - name: Check KataConfig
-      command: oc get kataconfig openshell-coco
+      command: oc get kataconfig -o name
       expect:
         exitCode: 0
-        outputContains: openshell-coco
+        outputContains: kataconfig.kataconfiguration.openshift.io/
     - name: Check confidential feature gate
       command: oc get configmap osc-feature-gates -n openshift-sandboxed-containers-operator -o jsonpath='{.data.confidential}'
       expect:
         exitCode: 0
         outputContains: "true"
     - name: Check KataConfig completion
-      command: oc get kataconfig openshell-coco -o jsonpath='{.status.conditions[?(@.type=="InProgress")].status}'
+      command: oc get kataconfig -o jsonpath='{.items[*].status.conditions[?(@.type=="InProgress")].status}'
       expect:
         exitCode: 0
         outputContains: "False"

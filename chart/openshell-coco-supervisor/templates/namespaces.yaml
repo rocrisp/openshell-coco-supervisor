@@ -1,0 +1,13 @@
+{{- range $name := list "openshift-sandboxed-containers-operator" "agent-sandbox-system" "trustee-operator-system" "openshell" }}
+{{- $existing := lookup "v1" "Namespace" "" $name }}
+{{- $render := include "openshell-coco.shouldRenderNamed" (dict "object" $existing "release" $.Release.Name) }}
+{{- if eq $render "true" }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "openshell-coco.labels" $ | nindent 4 }}
+{{- end }}
+{{- end }}

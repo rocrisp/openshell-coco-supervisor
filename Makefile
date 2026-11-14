@@ -1,41 +1,36 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
+CHART_DIR ?= chart/openshell-coco-supervisor
+RELEASE ?= openshell-coco
 NAMESPACE ?= openshell
-RUNTIME_CLASS ?= kata-remote
+HELM ?= helm
 
-.PHONY: help deploy initdata test clean
+.PHONY: help deploy template lint test clean
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "%-20s %s\n", $$1, $$2}'
 
-deploy: ## Deploy all components in order
-	oc apply -f deploy/00-namespaces.yaml
-	oc apply -f deploy/01-openshift-sandboxed-containers-operator.yaml
-	oc apply -f deploy/02-agent-sandbox-operator.yaml
-	oc apply -f deploy/03-trustee-operator.yaml
-	@echo "Waiting for operators to settle..."
-	sleep 60
-	oc apply -f deploy/04-kataconfig.yaml
-	@echo "Waiting for confidential Kata runtime..."
-	oc wait --for=condition=InProgress=False kataconfig/openshell-coco --timeout=600s
-	oc apply -f config/trustee-config.yaml
-	oc apply -f config/kbs-config.yaml
-	helm upgrade --install openshell oci://ghcr.io/nvidia/openshell/helm-chart \
-	  --version 0.1.8 \
+deploy: ## Deploy or upgrade the full stack through Helm
+	$(HELM) upgrade --install $(RELEASE) $(CHART_DIR) \
 	  --namespace $(NAMESPACE) \
 	  --create-namespace \
-	  --values config/openshell-values.yaml
-	$(MAKE) initdata
-	oc patch deployment openshell-supervisor \
+	  --wait
+
+template: ## Render the Helm chart locally
+	$(HELM) template $(RELEASE) $(CHART_DIR) \
 	  --namespace $(NAMESPACE) \
-	  --type merge \
-	  --patch-file deploy/05-openshell-supervisor-confidential.yaml
+	  --set openshell.agentSandbox.preflight.enabled=false
 
-initdata: ## Create the supervisor initdata ConfigMap from Trustee
-	./scripts/create-supervisor-initdata.sh
+lint: ## Lint the Helm chart
+	$(HELM) lint $(CHART_DIR)
 
-test: ## Run all YAML test suites
-	python3 scripts/run_tests.py 'test/*.yml'
+test: .venv/bin/python ## Run all YAML test suites
+	.venv/bin/python scripts/run_tests.py 'test/*.yml'
 
-clean: ## Remove OpenShell release only; operators remain
-	helm uninstall openshell --namespace $(NAMESPACE)
+.venv/bin/python: requirements.txt
+	python3 -m venv .venv
+	.venv/bin/pip install --quiet --upgrade pip
+	.venv/bin/pip install --quiet -r requirements.txt
+
+clean: ## Remove the Helm release only
+	$(HELM) uninstall $(RELEASE) --namespace $(NAMESPACE)

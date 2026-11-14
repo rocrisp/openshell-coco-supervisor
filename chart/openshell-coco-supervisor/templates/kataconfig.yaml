@@ -1,0 +1,31 @@
+{{- if .Values.kata.enabled }}
+{{- $existingConfigMap := lookup "v1" "ConfigMap" .Values.operators.openshiftSandboxedContainers.namespace .Values.kata.featureGateConfigMap }}
+{{- $renderConfigMap := include "openshell-coco.shouldRenderNamed" (dict "object" $existingConfigMap "release" .Release.Name) }}
+{{- if eq $renderConfigMap "true" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.kata.featureGateConfigMap }}
+  namespace: {{ .Values.operators.openshiftSandboxedContainers.namespace }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+data:
+  confidential: {{ .Values.kata.confidential | quote }}
+{{- end }}
+
+{{- $list := lookup "kataconfiguration.openshift.io/v1" "KataConfig" "" "" }}
+{{- $render := include "openshell-coco.listShouldRender" (dict "list" $list "release" .Release.Name "name" .Values.kata.name) }}
+{{- if eq $render "true" }}
+---
+apiVersion: kataconfiguration.openshift.io/v1
+kind: KataConfig
+metadata:
+  name: {{ .Values.kata.name }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+spec:
+  enablePeerPods: {{ .Values.kata.enablePeerPods }}
+  logLevel: {{ .Values.kata.logLevel | quote }}
+{{- end }}
+{{- end }}

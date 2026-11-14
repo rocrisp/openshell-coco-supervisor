@@ -3,13 +3,20 @@ kind: TestSuite
 metadata:
   name: end-to-end
 spec:
-  description: Run the OpenShell end-to-end smoke test.
+  description: Run an OpenShell cluster-native smoke test.
   steps:
-    - name: Check OpenShell CLI status
-      command: openshell status
+    - name: Check OpenShell gateway readiness
+      command: oc get statefulset -n openshell -l app.kubernetes.io/name=openshell
       expect:
         exitCode: 0
-    - name: List OpenShell sandboxes
-      command: openshell sandbox list
+        outputContains: "1/1"
+    - name: Check OpenShell supervisor readiness
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor
       expect:
         exitCode: 0
+        outputContains: "1/1"
+    - name: Check OpenShell service endpoint
+      command: oc get service -n openshell -l app.kubernetes.io/name=openshell
+      expect:
+        exitCode: 0
+        outputContains: "8080"

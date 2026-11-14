@@ -1,0 +1,13 @@
+apiVersion: v2
+name: openshell-coco-supervisor
+description: Deploys the OpenShell supervisor in a confidential container with Trustee integration.
+type: application
+version: 0.1.0
+appVersion: "0.1.8"
+
+dependencies:
+  - name: helm-chart
+    alias: openshell
+    version: "0.1.8"
+    repository: "oci://ghcr.io/nvidia/openshell"
+    condition: openshell.enabled

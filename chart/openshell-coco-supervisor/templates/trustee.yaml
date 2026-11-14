@@ -1,0 +1,38 @@
+{{- if .Values.operators.trustee.enabled }}
+{{- $ns := .Values.operators.trustee.namespace }}
+{{- $trusteeList := lookup "confidentialcontainers.org/v1alpha1" "TrusteeConfig" $ns "" }}
+{{- $renderTrustee := include "openshell-coco.listShouldRender" (dict "list" $trusteeList "release" .Release.Name "name" .Values.trustee.trusteeConfigName) }}
+{{- if eq $renderTrustee "true" }}
+---
+apiVersion: confidentialcontainers.org/v1alpha1
+kind: TrusteeConfig
+metadata:
+  name: {{ .Values.trustee.trusteeConfigName }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+spec:
+  profileType: {{ .Values.trustee.profileType | quote }}
+  kbsServiceType: {{ .Values.trustee.kbsServiceType | quote }}
+  attestationTokenVerificationSpec:
+    tlsSecretName: {{ .Values.trustee.tlsSecretName | quote }}
+{{- end }}
+
+{{- $kbsList := lookup "confidentialcontainers.org/v1alpha1" "KbsConfig" $ns "" }}
+{{- $renderKbs := include "openshell-coco.listShouldRender" (dict "list" $kbsList "release" .Release.Name "name" .Values.trustee.kbsConfigName) }}
+{{- if eq $renderKbs "true" }}
+---
+apiVersion: confidentialcontainers.org/v1alpha1
+kind: KbsConfig
+metadata:
+  name: {{ .Values.trustee.kbsConfigName }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+spec:
+  kbsConfigMapName: {{ .Values.trustee.kbsConfigMapName | quote }}
+  kbsAuthSecretName: {{ .Values.trustee.kbsAuthSecretName | quote }}
+  kbsDeploymentType: {{ .Values.trustee.kbsDeploymentType | quote }}
+  kbsAttestationPolicyConfigMapName: {{ .Values.trustee.kbsAttestationPolicyConfigMapName | quote }}
+{{- end }}
+{{- end }}

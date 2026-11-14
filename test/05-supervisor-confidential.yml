@@ -6,7 +6,7 @@ spec:
   description: Validate that the OpenShell supervisor uses the confidential Kata runtime.
   steps:
     - name: Check supervisor runtime class
-      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.spec.runtimeClassName}'
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor -o jsonpath='{.items[0].spec.template.spec.runtimeClassName}'
       expect:
         exitCode: 0
         outputContains: kata-remote
@@ -16,32 +16,32 @@ spec:
         exitCode: 0
         outputContains: kata-remote
     - name: Check Kata guest memory
-      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.metadata.annotations}'
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor -o jsonpath='{.items[0].spec.template.metadata.annotations}'
       expect:
         exitCode: 0
         outputContains: "2048"
     - name: Check supervisor initdata ConfigMap reference
-      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.metadata.annotations}'
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor -o jsonpath='{.items[0].spec.template.metadata.annotations}'
       expect:
         exitCode: 0
-        outputContains: "openshell-supervisor-initdata"
+        outputContains: "initdata-configmap"
     - name: Check supervisor initdata ConfigMap
-      command: oc get configmap openshell-supervisor-initdata -n openshell
+      command: oc get configmap -n openshell -o name
       expect:
         exitCode: 0
-        outputContains: openshell-supervisor-initdata
+        outputContains: initdata
     - name: Check injected Kata initdata annotation
       command: oc get pods -n openshell -l app.kubernetes.io/component=supervisor -o jsonpath='{.items[0].metadata.annotations}'
       expect:
         exitCode: 0
         outputContains: "cc_init_data"
     - name: Check supervisor memory request
-      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.spec.containers[?(@.name=="supervisor")].resources.requests.memory}'
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor -o jsonpath='{.items[0].spec.template.spec.containers[?(@.name=="supervisor")].resources.requests.memory}'
       expect:
         exitCode: 0
         outputContains: "2560Mi"
     - name: Check supervisor memory limit
-      command: oc get deployment openshell-supervisor -n openshell -o jsonpath='{.spec.template.spec.containers[?(@.name=="supervisor")].resources.limits.memory}'
+      command: oc get deployment -n openshell -l app.kubernetes.io/component=supervisor -o jsonpath='{.items[0].spec.template.spec.containers[?(@.name=="supervisor")].resources.limits.memory}'
       expect:
         exitCode: 0
         outputContains: "2560Mi"
@@ -49,3 +49,4 @@ spec:
       command: oc get pods -n openshell -l app.kubernetes.io/component=supervisor
       expect:
         exitCode: 0
+        outputContains: Running

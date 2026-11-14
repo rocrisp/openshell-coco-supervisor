@@ -13,3 +13,4 @@ spec:
       command: oc get pods -n agent-sandbox-system
       expect:
         exitCode: 0
+        outputContains: Running

@@ -6,18 +6,22 @@ spec:
   description: Validate Red Hat build of Trustee and its custom resources.
   steps:
     - name: Check Trustee CSV
-      command: oc get csv -n trustee-operator-system
+      command: oc get csv -A
       expect:
         exitCode: 0
+        outputContains: trustee-operator
     - name: Check Trustee pods
       command: oc get pods -n trustee-operator-system
       expect:
         exitCode: 0
+        outputContains: Running
     - name: Check TrusteeConfig
-      command: oc get trusteeconfig openshell-trustee -n trustee-operator-system
+      command: oc get trusteeconfig -A -o name
       expect:
         exitCode: 0
+        outputContains: trusteeconfig.confidentialcontainers.org/
     - name: Check KbsConfig
-      command: oc get kbsconfig openshell-kbs -n trustee-operator-system
+      command: oc get kbsconfig -A -o name
       expect:
         exitCode: 0
+        outputContains: kbsconfig.confidentialcontainers.org/

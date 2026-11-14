@@ -1,0 +1,74 @@
+{{- if .Values.operators.openshiftSandboxedContainers.enabled }}
+{{- $ns := .Values.operators.openshiftSandboxedContainers.namespace }}
+{{- $name := .Values.operators.openshiftSandboxedContainers.subscriptionName }}
+{{- $package := "openshift-sandboxed-containers-operator" }}
+{{- $list := lookup "operators.coreos.com/v1alpha1" "Subscription" $ns "" }}
+{{- $render := include "openshell-coco.subscriptionShouldRender" (dict "list" $list "package" $package "release" .Release.Name "name" $name) }}
+{{- if eq $render "true" }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ $name }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+spec:
+  channel: {{ .Values.operators.openshiftSandboxedContainers.channel | quote }}
+  installPlanApproval: Automatic
+  name: {{ $package }}
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: {{ .Values.operators.openshiftSandboxedContainers.startingCSV | quote }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.operators.agentSandbox.enabled }}
+{{- $ns := .Values.operators.agentSandbox.namespace }}
+{{- $name := .Values.operators.agentSandbox.subscriptionName }}
+{{- $package := "agent-sandbox-operator" }}
+{{- $list := lookup "operators.coreos.com/v1alpha1" "Subscription" $ns "" }}
+{{- $render := include "openshell-coco.subscriptionShouldRender" (dict "list" $list "package" $package "release" .Release.Name "name" $name) }}
+{{- if eq $render "true" }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ $name }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+spec:
+  channel: {{ .Values.operators.agentSandbox.channel | quote }}
+  installPlanApproval: Automatic
+  name: {{ $package }}
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: {{ .Values.operators.agentSandbox.startingCSV | quote }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.operators.trustee.enabled }}
+{{- $ns := .Values.operators.trustee.namespace }}
+{{- $name := .Values.operators.trustee.subscriptionName }}
+{{- $package := "trustee-operator" }}
+{{- $list := lookup "operators.coreos.com/v1alpha1" "Subscription" $ns "" }}
+{{- $render := include "openshell-coco.subscriptionShouldRender" (dict "list" $list "package" $package "release" .Release.Name "name" $name) }}
+{{- if eq $render "true" }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ $name }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "openshell-coco.labels" . | nindent 4 }}
+spec:
+  channel: {{ .Values.operators.trustee.channel | quote }}
+  installPlanApproval: Automatic
+  name: {{ $package }}
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: {{ .Values.operators.trustee.startingCSV | quote }}
+{{- end }}
+{{- end }}
