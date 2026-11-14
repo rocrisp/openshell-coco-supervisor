@@ -35,6 +35,7 @@ See [docs/deployment-sequence.md](docs/deployment-sequence.md) for the ordered d
 │   ├── trustee-config.yaml
 │   └── kbs-config.yaml
 ├── scripts/
+│   ├── create-supervisor-initdata.sh
 │   └── run_tests.py
 ├── test/
 │   ├── README.md
@@ -61,7 +62,7 @@ make deploy
 make test
 ```
 
-The Makefile runs each phase in order and stops on the first failure. Tests are declarative YAML files under `test/` and are executed by `scripts/run_tests.py`.
+The Makefile runs each phase in order and stops on the first failure. Tests are declarative YAML files under `test/` and are executed by `scripts/run_tests.py`. The deployment creates the supervisor initdata ConfigMap from the Trustee certificate before patching the supervisor Deployment.
 
 ## Reference video
 

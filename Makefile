@@ -4,7 +4,7 @@ SHELL := /bin/bash
 NAMESPACE ?= openshell
 RUNTIME_CLASS ?= kata-remote
 
-.PHONY: help deploy test clean
+.PHONY: help deploy initdata test clean
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "%-20s %s\n", $$1, $$2}'
 
@@ -25,10 +25,14 @@ deploy: ## Deploy all components in order
 	  --namespace $(NAMESPACE) \
 	  --create-namespace \
 	  --values config/openshell-values.yaml
+	$(MAKE) initdata
 	oc patch deployment openshell-supervisor \
 	  --namespace $(NAMESPACE) \
 	  --type merge \
 	  --patch-file deploy/05-openshell-supervisor-confidential.yaml
+
+initdata: ## Create the supervisor initdata ConfigMap from Trustee
+	./scripts/create-supervisor-initdata.sh
 
 test: ## Run all YAML test suites
 	python3 scripts/run_tests.py 'test/*.yml'

@@ -55,14 +55,15 @@ The current repository deploys:
 - OpenShell,
 - a supervisor runtime-class patch.
 
-However, the current OpenShell chart configuration does **not** yet wire provider credentials directly from Trustee into the confidential supervisor.
+However, the repository now creates a supervisor-specific `initdata` ConfigMap and configures Kyverno to inject it into the confidential supervisor Pod. That initdata configures the guest attestation agent and Confidential Data Hub to use Trustee.
 
 That means this PoC currently demonstrates:
 
 - confidential supervisor runtime placement,
 - Kata confidential VM setup,
 - Trustee deployment,
-- attestation-oriented configuration,
+- Trustee URL and certificate delivery into the guest through initdata,
+- Kyverno-based `cc_init_data` injection,
 
 but it does **not** yet prove the complete end-to-end secret path.
 

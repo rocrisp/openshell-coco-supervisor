@@ -9,6 +9,8 @@ spec:
       annotations:
         # Kata guest VM RAM, in MiB.
         io.katacontainers.config.hypervisor.default_memory: "2048"
+        # Kyverno reads this ConfigMap and injects cc_init_data into the Pod.
+        coco.io/initdata-configmap: "openshell-supervisor-initdata"
     spec:
       runtimeClassName: kata-remote
       containers:

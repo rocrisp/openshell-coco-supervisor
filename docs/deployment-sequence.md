@@ -106,7 +106,19 @@ Patch:
 - `openshell-supervisor` Deployment
 - `spec.template.spec.runtimeClassName: kata-remote` or `kata-cc`
 - `io.katacontainers.config.hypervisor.default_memory: "2048"`
+- `coco.io/initdata-configmap: "openshell-supervisor-initdata"`
 - `resources.requests.memory` and `resources.limits.memory` set to `2560Mi`
+
+Initdata:
+
+- Create `openshell-supervisor-initdata` with:
+
+```bash
+./scripts/create-supervisor-initdata.sh
+```
+
+- The script reads the Trustee certificate, builds `initdata.toml`, compresses and base64-encodes it, and stores it in the ConfigMap.
+- Kyverno reads that ConfigMap and injects `io.katacontainers.config.hypervisor.cc_init_data` into the supervisor Pod.
 
 Memory sizing:
 
