@@ -90,7 +90,8 @@ See [`chart/openshell-coco-supervisor/README.md`](chart/openshell-coco-superviso
 │   ├── 03-trustee.yml
 │   ├── 04-openshell.yml
 │   ├── 05-supervisor-confidential.yml
-│   └── 06-end-to-end.yml
+│   ├── 06-end-to-end.yml
+│   └── 07-attested-secret-retrieval.yml
 ├── requirements.txt
 └── docs/
     ├── deployment-sequence.md

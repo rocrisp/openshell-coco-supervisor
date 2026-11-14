@@ -44,3 +44,15 @@ spec:
 ```
 
 The runner executes steps in order and stops the suite on the first failure.
+
+## Attestation test
+
+`test/07-attested-secret-retrieval.yml` creates a `kata-remote` Pod with
+`coco.io/initdata-configmap: openshell-supervisor-initdata`. Kyverno injects the
+initdata, the guest attests to Trustee, and an init container reads:
+
+```text
+default/kbsres1/key1
+```
+
+The Pod becomes Ready only if that Trustee resource retrieval succeeds.

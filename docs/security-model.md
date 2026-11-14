@@ -67,6 +67,10 @@ That means this PoC currently demonstrates:
 
 but it does **not** yet prove the complete end-to-end secret path.
 
+`test/07-attested-secret-retrieval.yml` is the next validation step: it creates
+a `kata-remote` workload, injects the supervisor initdata through Kyverno, and
+waits for the workload to retrieve `default/kbsres1/key1` from Trustee.
+
 ## Required follow-up
 
 To close the gap:
